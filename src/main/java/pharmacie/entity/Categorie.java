@@ -35,4 +35,9 @@ public class Categorie {
 	@JsonIgnoreProperties({"categorie", "lignes"})
 	private List<Medicament> medicaments = new LinkedList<>();
 
+	@ManyToMany(mappedBy = "categories")
+	@ToString.Exclude
+	@JsonIgnoreProperties("categories")
+	private List<Fournisseur> fournisseurs = new LinkedList<>();
+
 }
