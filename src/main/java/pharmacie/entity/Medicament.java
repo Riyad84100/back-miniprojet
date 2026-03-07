@@ -29,10 +29,10 @@ import lombok.ToString;
 public class Medicament {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Setter(AccessLevel.NONE) // la clé est autogénérée par la BD, On ne veut pas de "setter"
+	@Setter(AccessLevel.NONE)
 	private Integer reference = null;
 
-	@NonNull // Lombok, génère une vérification dans le constructeur par défaut
+	@NonNull
 	@Column(unique=true, length = 255)
 	private String nom;
 
@@ -41,36 +41,18 @@ public class Medicament {
 	@PositiveOrZero
 	private BigDecimal prixUnitaire = BigDecimal.TEN;
 
-	/**
-	 * Nombre d'unités en stock
-	 * Décrémenté quand on expédie une commande contenant ce médicament
-	 */
 	@ToString.Exclude
 	@PositiveOrZero
 	private int unitesEnStock = 0;
 
-	/**
-	 * Nombre d'unités "en commande"
-	 * Un médicament est "en commande" si il est dans une commande qui n'est pas encore expédiée
-	 * Incrementé quand on ajoute des unités de ce médicament à une ligne de commande
-	 * Décrémenté quand on expédie une commande contenant ce médicament
-	 */
 	@ToString.Exclude
 	@PositiveOrZero
 	private int unitesCommandees = 0;
 
-	/**
-	 * Niveau de reapprovisionnement
-	 * Si le stock devient inférieur ou égal à ce niveau, 
-	 * on doit approvisionner de nouvelles unités de ce médicament auprès d'un fournisseur
-	 */
 	@ToString.Exclude
 	@PositiveOrZero
 	private int niveauDeReappro = 0;
 
-	/**
-	 * Indique si le médicament est indisponible
-	 */
 	@ToString.Exclude
 	private boolean indisponible = false;
 
@@ -78,15 +60,13 @@ public class Medicament {
 	private String imageURL;
 
 	@ToString.Exclude
-	@JsonIgnoreProperties("medicaments") // pour éviter la boucle infinie si on convertit le médicament en JSON
-	@NonNull // Lombok, génère une vérification dans le constructeur par défaut
-	@ManyToOne(optional = false) // La clé étrangère ne peut pas être nulle dans la table Medicament
-	private Categorie categorie ;
+	@JsonIgnoreProperties("medicaments")
+	@NonNull
+	@ManyToOne(optional = false)
+	private Categorie categorie;
 
 	@ToString.Exclude
-	@JsonIgnore // On n'inclut pas les lignes quand on convertit le médicament en JSON
-	@OneToMany(mappedBy = "medicament", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+	@JsonIgnore
+	@OneToMany(mappedBy = "medicament", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Ligne> lignes = new LinkedList<>();
-
-
 }
